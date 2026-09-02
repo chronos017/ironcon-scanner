@@ -1,0 +1,1168 @@
+<!DOCTYPE html>
+
+<html>
+
+<head>
+
+  <meta
+    charset="UTF-8"
+  >
+
+  <meta
+    name="viewport"
+    content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"
+  >
+
+  <title>
+    IRONCON QR Scanner
+  </title>
+
+
+  <!--
+    html5-qrcode
+  -->
+
+  <script
+    src="https://unpkg.com/html5-qrcode"
+  ></script>
+
+
+  <style>
+
+    * {
+      box-sizing: border-box;
+    }
+
+
+    html,
+    body {
+
+      margin: 0;
+
+      padding: 0;
+
+      width: 100%;
+
+      min-height: 100%;
+
+      background: #111;
+
+      font-family:
+        Arial,
+        Helvetica,
+        sans-serif;
+
+      color: white;
+
+    }
+
+
+    body {
+
+      display: flex;
+
+      justify-content: center;
+
+    }
+
+
+    .app {
+
+      width: 100%;
+
+      max-width: 600px;
+
+      padding: 15px;
+
+    }
+
+
+    .header {
+
+      text-align: center;
+
+      padding: 15px 0;
+
+    }
+
+
+    .header h1 {
+
+      margin: 0;
+
+      font-size: 22px;
+
+    }
+
+
+    .header p {
+
+      margin: 6px 0 0;
+
+      color: #bbb;
+
+    }
+
+
+    #reader {
+
+      width: 100%;
+
+      margin: 15px auto;
+
+      border-radius: 16px;
+
+      overflow: hidden;
+
+      background: #000;
+
+    }
+
+
+    /*
+     * html5-qrcode creates its own
+     * camera interface.
+     */
+
+    #reader video {
+
+      width: 100% !important;
+
+      height: auto !important;
+
+      object-fit: cover;
+
+    }
+
+
+    .button {
+
+      width: 100%;
+
+      padding: 17px;
+
+      border: none;
+
+      border-radius: 12px;
+
+      font-size: 18px;
+
+      font-weight: bold;
+
+      cursor: pointer;
+
+      margin-top: 10px;
+
+    }
+
+
+    .start {
+
+      background: #1976d2;
+
+      color: white;
+
+    }
+
+
+    .stop {
+
+      background: #444;
+
+      color: white;
+
+    }
+
+
+    .scanner-status {
+
+      text-align: center;
+
+      padding: 12px;
+
+      color: #ccc;
+
+    }
+
+
+    #result {
+
+      display: none;
+
+      margin-top: 20px;
+
+      padding: 22px;
+
+      border-radius: 15px;
+
+      text-align: center;
+
+    }
+
+
+    #result.success {
+
+      display: block;
+
+      background: #1b5e20;
+
+    }
+
+
+    #result.error {
+
+      display: block;
+
+      background: #b71c1c;
+
+    }
+
+
+    #result.warning {
+
+      display: block;
+
+      background: #8d6e00;
+
+    }
+
+
+    .icon {
+
+      font-size: 45px;
+
+    }
+
+
+    .name {
+
+      font-size: 24px;
+
+      font-weight: bold;
+
+      margin: 10px 0;
+
+    }
+
+
+    .message {
+
+      font-size: 17px;
+
+    }
+
+
+    .scan-again {
+
+      width: 100%;
+
+      margin-top: 15px;
+
+      padding: 15px;
+
+      border: none;
+
+      border-radius: 10px;
+
+      background: white;
+
+      color: #222;
+
+      font-size: 17px;
+
+      font-weight: bold;
+
+    }
+
+
+    .manual {
+
+      margin-top: 25px;
+
+      border-top: 1px solid #333;
+
+      padding-top: 20px;
+
+    }
+
+
+    .manual input {
+
+      width: 100%;
+
+      padding: 15px;
+
+      border-radius: 10px;
+
+      border: none;
+
+      font-size: 17px;
+
+      margin-top: 8px;
+
+    }
+
+
+    .manual button {
+
+      width: 100%;
+
+      margin-top: 8px;
+
+      padding: 15px;
+
+      border: none;
+
+      border-radius: 10px;
+
+      background: #555;
+
+      color: white;
+
+      font-size: 17px;
+
+    }
+
+
+    .hidden {
+
+      display: none !important;
+
+    }
+
+
+  </style>
+
+</head>
+
+
+<body>
+
+
+  <div class="app">
+
+
+    <div class="header">
+
+      <h1>
+        IRONCON 48TH ANNIVERSARY
+      </h1>
+
+      <p>
+        QR Check-In Scanner
+      </p>
+
+    </div>
+
+
+    <div
+      id="reader"
+    ></div>
+
+
+    <div
+      id="scannerStatus"
+      class="scanner-status"
+    >
+
+      Camera scanner is ready.
+
+    </div>
+
+
+    <button
+      id="startButton"
+      class="button start"
+      onclick="startScanner()"
+    >
+
+      📷 START CAMERA
+
+    </button>
+
+
+    <button
+      id="stopButton"
+      class="button stop hidden"
+      onclick="stopScanner()"
+    >
+
+      ⏹ STOP CAMERA
+
+    </button>
+
+
+    <div
+      id="result"
+    ></div>
+
+
+    <!--
+      Manual fallback
+    -->
+
+    <div class="manual">
+
+      <strong>
+        Manual Security Code
+      </strong>
+
+      <input
+        id="manualCode"
+        type="text"
+        placeholder="Enter security code"
+        autocomplete="off"
+      >
+
+      <button
+        onclick="sendCode()"
+      >
+
+        CHECK CODE
+
+      </button>
+
+    </div>
+
+
+  </div>
+
+
+  <script>
+
+
+    /*
+     * IMPORTANT
+     *
+     * This MUST match the Apps Script
+     * page's origin.
+     *
+     * Example:
+     *
+     * https://script.google.com
+     *
+     * However, because Apps Script web apps
+     * can redirect, we do not use this value
+     * as our security boundary.
+     *
+     * The scanner is intentionally only
+     * communicating with its opener.
+     */
+
+
+    let scanner = null;
+
+    let scannerRunning = false;
+
+
+    /*
+     * Start QR scanner
+     */
+
+    async function startScanner() {
+
+      if (scannerRunning) {
+        return;
+      }
+
+
+      setStatus(
+        "Starting camera..."
+      );
+
+
+      try {
+
+
+        scanner =
+          new Html5Qrcode(
+            "reader"
+          );
+
+
+        const config = {
+
+          fps: 10,
+
+          qrbox: function(
+            viewfinderWidth,
+            viewfinderHeight
+          ) {
+
+            const minEdge =
+              Math.min(
+                viewfinderWidth,
+                viewfinderHeight
+              );
+
+
+            const boxSize =
+              Math.min(
+                Math.floor(
+                  minEdge * 0.70
+                ),
+                300
+              );
+
+
+            return {
+              width: boxSize,
+              height: boxSize
+            };
+
+          },
+
+          aspectRatio: 1.0,
+
+          rememberLastUsedCamera: true
+
+        };
+
+
+        await scanner.start(
+
+          {
+            facingMode:
+              "environment"
+          },
+
+          config,
+
+          onScanSuccess,
+
+          onScanFailure
+
+        );
+
+
+        scannerRunning = true;
+
+
+        document
+          .getElementById(
+            "startButton"
+          )
+          .classList
+          .add("hidden");
+
+
+        document
+          .getElementById(
+            "stopButton"
+          )
+          .classList
+          .remove("hidden");
+
+
+        setStatus(
+          "Point the camera at the attendee QR code."
+        );
+
+
+      } catch (error) {
+
+        console.error(
+          "Camera error:",
+          error
+        );
+
+
+        scannerRunning = false;
+
+
+        setStatus(
+          "Unable to access camera."
+        );
+
+
+        showResult(
+
+          "error",
+
+          `
+            <div class="icon">
+              ⚠️
+            </div>
+
+            <div class="message">
+
+              Camera access failed.
+
+              <br><br>
+
+              Make sure you opened this page
+              using HTTPS and allowed camera
+              permission in Chrome.
+
+            </div>
+          `
+
+        );
+
+      }
+
+    }
+
+
+    /*
+     * QR successfully scanned.
+     */
+
+    async function onScanSuccess(
+      decodedText,
+      decodedResult
+    ) {
+
+      console.log(
+        "QR CODE:",
+        decodedText
+      );
+
+
+      /*
+       * Stop scanner immediately
+       * to prevent multiple scans.
+       */
+
+      await stopScanner();
+
+
+      /*
+       * Send security code to
+       * Apps Script opener.
+       */
+
+      sendCode(
+        decodedText
+      );
+
+    }
+
+
+    /*
+     * QR scan frame failed.
+     *
+     * This is normal while searching
+     * for a QR code, so don't display errors.
+     */
+
+    function onScanFailure(
+      errorMessage
+    ) {
+
+      // Intentionally ignored.
+
+    }
+
+
+    /*
+     * Stop scanner.
+     */
+
+    async function stopScanner() {
+
+      if (
+        !scanner ||
+        !scannerRunning
+      ) {
+
+        return;
+
+      }
+
+
+      try {
+
+        await scanner.stop();
+
+      } catch (error) {
+
+        console.warn(
+          "Scanner stop:",
+          error
+        );
+
+      }
+
+
+      try {
+
+        await scanner.clear();
+
+      } catch (error) {
+
+        console.warn(
+          "Scanner clear:",
+          error
+        );
+
+      }
+
+
+      scannerRunning = false;
+
+
+      document
+        .getElementById(
+          "startButton"
+        )
+        .classList
+        .remove("hidden");
+
+
+      document
+        .getElementById(
+          "stopButton"
+        )
+        .classList
+        .add("hidden");
+
+
+      setStatus(
+        "Scanner stopped."
+      );
+
+    }
+
+
+    /*
+     * Send QR code to Apps Script
+     * through window.opener.
+     */
+
+    function sendCode(
+      scannedCode
+    ) {
+
+
+      const input =
+        document.getElementById(
+          "manualCode"
+        );
+
+
+      const code =
+        scannedCode ||
+        input.value.trim();
+
+
+      if (!code) {
+
+        showResult(
+
+          "error",
+
+          `
+            <div class="icon">
+              ❌
+            </div>
+
+            <div class="message">
+              Please scan or enter a security code.
+            </div>
+          `
+
+        );
+
+        return;
+
+      }
+
+
+      /*
+       * If scanner was opened from
+       * Apps Script, window.opener
+       * points back to the check-in page.
+       */
+
+      if (
+        !window.opener ||
+        window.opener.closed
+      ) {
+
+        showResult(
+
+          "error",
+
+          `
+            <div class="icon">
+              ⚠️
+            </div>
+
+            <div class="message">
+
+              This scanner was opened directly.
+
+              <br><br>
+
+              Please open the scanner
+              from the Apps Script
+              Check-In page.
+
+            </div>
+          `
+
+        );
+
+        return;
+
+      }
+
+
+      /*
+       * Send message.
+       */
+
+      window.opener.postMessage(
+
+        {
+
+          type:
+            "QR_SCANNED",
+
+          code:
+            String(code).trim()
+
+        },
+
+        "*"
+
+      );
+
+
+      showResult(
+
+        "warning",
+
+        `
+          <div class="icon">
+            ⏳
+          </div>
+
+          <div class="message">
+
+            Security code sent.
+
+            <br><br>
+
+            Waiting for verification...
+
+          </div>
+        `
+
+      );
+
+    }
+
+
+    /*
+     * Receive verification result
+     * from Apps Script.
+     */
+
+    window.addEventListener(
+
+      "message",
+
+      function(event) {
+
+
+        const data =
+          event.data;
+
+
+        if (!data) {
+          return;
+        }
+
+
+        if (
+          data.type !==
+          "CHECKIN_RESULT"
+        ) {
+
+          return;
+
+        }
+
+
+        const result =
+          data.result;
+
+
+        if (!result) {
+          return;
+        }
+
+
+        if (
+          result.success
+        ) {
+
+          showResult(
+
+            "success",
+
+            `
+              <div class="icon">
+                ✅
+              </div>
+
+              <div class="name">
+                ${escapeHtml(result.name)}
+              </div>
+
+              <div class="message">
+                CHECK-IN SUCCESSFUL
+              </div>
+
+              <br>
+
+              ${escapeHtml(
+                result.checkInTime || ""
+              )}
+
+              <button
+                class="scan-again"
+                onclick="scanAgain()"
+              >
+
+                📷 SCAN NEXT ATTENDEE
+
+              </button>
+
+            `
+
+          );
+
+          return;
+
+        }
+
+
+        if (
+          result.alreadyCheckedIn
+        ) {
+
+          showResult(
+
+            "warning",
+
+            `
+              <div class="icon">
+                ⚠️
+              </div>
+
+              <div class="name">
+                ${escapeHtml(result.name)}
+              </div>
+
+              <div class="message">
+
+                ALREADY CHECKED IN
+
+                <br><br>
+
+                ${escapeHtml(
+                  result.checkInTime || ""
+                )}
+
+              </div>
+
+              <button
+                class="scan-again"
+                onclick="scanAgain()"
+              >
+
+                📷 SCAN NEXT ATTENDEE
+
+              </button>
+
+            `
+
+          );
+
+          return;
+
+        }
+
+
+        showResult(
+
+          "error",
+
+          `
+            <div class="icon">
+              ❌
+            </div>
+
+            <div class="message">
+
+              ${escapeHtml(
+                result.message ||
+                "Invalid security code."
+              )}
+
+            </div>
+
+            <button
+              class="scan-again"
+              onclick="scanAgain()"
+            >
+
+              📷 TRY AGAIN
+
+            </button>
+
+          `
+
+        );
+
+      },
+
+      false
+
+    );
+
+
+    /*
+     * Scan next attendee.
+     */
+
+    function scanAgain() {
+
+      document
+        .getElementById(
+          "result"
+        )
+        .style
+        .display = "none";
+
+
+      document
+        .getElementById(
+          "manualCode"
+        )
+        .value = "";
+
+
+      startScanner();
+
+    }
+
+
+    /*
+     * Display status.
+     */
+
+    function setStatus(
+      message
+    ) {
+
+      document
+        .getElementById(
+          "scannerStatus"
+        )
+        .textContent =
+          message;
+
+    }
+
+
+    /*
+     * Display result.
+     */
+
+    function showResult(
+      type,
+      html
+    ) {
+
+      const result =
+        document.getElementById(
+          "result"
+        );
+
+
+      result.className =
+        type;
+
+
+      result.style.display =
+        "block";
+
+
+      result.innerHTML =
+        html;
+
+    }
+
+
+    /*
+     * HTML escaping.
+     */
+
+    function escapeHtml(
+      value
+    ) {
+
+      return String(value)
+
+        .replace(
+          /&/g,
+          "&amp;"
+        )
+
+        .replace(
+          /</g,
+          "&lt;"
+        )
+
+        .replace(
+          />/g,
+          "&gt;"
+        )
+
+        .replace(
+          /"/g,
+          "&quot;"
+        )
+
+        .replace(
+          /'/g,
+          "&#039;"
+        );
+
+    }
+
+
+    /*
+     * Tell Apps Script opener that
+     * scanner is ready.
+     */
+
+    if (
+      window.opener &&
+      !window.opener.closed
+    ) {
+
+      window.opener.postMessage(
+
+        {
+          type:
+            "SCANNER_READY"
+        },
+
+        "*"
+
+      );
+
+    }
+
+
+  </script>
+
+
+</body>
+
+</html>
