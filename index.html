@@ -1,236 +1,431 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
+
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-  <title>IRONCON Event QR Scanner</title>
-  <script src="https://unpkg.com/html5-qrcode"></script>
-  <style>
-    * { box-sizing: border-box; }
-    html, body {
-      margin: 0; padding: 0; width: 100%; min-height: 100%;
-      background: #111; font-family: Arial, Helvetica, sans-serif; color: white;
-    }
-    body { display: flex; justify-content: center; }
-    .app { width: 100%; max-width: 600px; padding: 15px; }
-    .header { text-align: center; padding: 15px 0; }
-    .header h1 { margin: 0; font-size: 22px; }
-    .header p { margin: 6px 0 0; color: #bbb; }
-    .event { margin: 10px 0; padding: 12px; border-radius: 10px; background: #222; text-align: center; font-size: 14px; color: #ddd; }
-    #reader { width: 100%; margin: 15px auto; border-radius: 16px; overflow: hidden; background: #000; }
-    #reader video { width: 100% !important; height: auto !important; object-fit: cover; }
-    .button {
-      width: 100%; padding: 17px; border: none; border-radius: 12px;
-      font-size: 18px; font-weight: bold; cursor: pointer; margin-top: 10px;
-    }
-    .start { background: #1976d2; color: white; }
-    .stop { background: #444; color: white; }
-    .scanner-status { text-align: center; padding: 12px; color: #ccc; }
-    #result { display: none; margin-top: 20px; padding: 22px; border-radius: 15px; text-align: center; }
-    #result.success { display: block; background: #1b5e20; }
-    #result.error { display: block; background: #b71c1c; }
-    #result.warning { display: block; background: #8d6e00; }
-    #result.info { display: block; background: #263238; }
-    .icon { font-size: 45px; }
-    .name { font-size: 24px; font-weight: bold; margin: 10px 0; }
-    .message { font-size: 17px; }
-    .event-result { margin-top: 8px; font-size: 14px; opacity: .9; }
-    .scan-again {
-      width: 100%; margin-top: 15px; padding: 15px; border: none;
-      border-radius: 10px; background: white; color: #222;
-      font-size: 17px; font-weight: bold; cursor: pointer;
-    }
-    .manual { margin-top: 25px; border-top: 1px solid #333; padding-top: 20px; }
-    .manual input {
-      width: 100%; padding: 15px; border-radius: 10px; border: none;
-      font-size: 17px; margin-top: 8px; text-transform: uppercase;
-    }
-    .manual button {
-      width: 100%; margin-top: 8px; padding: 15px; border: none;
-      border-radius: 10px; background: #555; color: white; font-size: 17px; cursor: pointer;
-    }
-    .hidden { display: none !important; }
-  </style>
+
+<meta charset="UTF-8">
+
+<meta
+  name="viewport"
+  content="width=device-width, initial-scale=1.0"
+>
+
+<title>IRONCON Event Check-In</title>
+
+<script src="https://unpkg.com/html5-qrcode"></script>
+
+<style>
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  padding: 20px;
+  font-family: Arial, sans-serif;
+  background: #f4f6f8;
+  color: #222;
+}
+
+.container {
+  max-width: 600px;
+  margin: auto;
+}
+
+.card {
+  background: white;
+  border-radius: 14px;
+  padding: 20px;
+  margin-bottom: 15px;
+  box-shadow: 0 3px 12px rgba(0,0,0,0.08);
+}
+
+h1 {
+  margin-top: 0;
+  text-align: center;
+  font-size: 24px;
+}
+
+h2 {
+  margin-top: 0;
+  font-size: 20px;
+}
+
+.event-info {
+  text-align: center;
+  line-height: 1.6;
+}
+
+.event-name {
+  font-size: 21px;
+  font-weight: bold;
+  margin-bottom: 10px;
+}
+
+.status {
+  padding: 12px;
+  border-radius: 8px;
+  text-align: center;
+  margin-bottom: 15px;
+  background: #eee;
+}
+
+#reader {
+  width: 100%;
+}
+
+button {
+  width: 100%;
+  padding: 14px;
+  border: none;
+  border-radius: 8px;
+  font-size: 16px;
+  cursor: pointer;
+  margin-top: 10px;
+}
+
+.start {
+  background: #1f5eff;
+  color: white;
+}
+
+.stop {
+  background: #555;
+  color: white;
+}
+
+.manual {
+  background: #222;
+  color: white;
+}
+
+input {
+  width: 100%;
+  padding: 13px;
+  border: 1px solid #ccc;
+  border-radius: 8px;
+  font-size: 16px;
+}
+
+.result {
+  display: none;
+}
+
+.success {
+  border-left: 6px solid #168a3b;
+}
+
+.warning {
+  border-left: 6px solid #e69b00;
+}
+
+.error {
+  border-left: 6px solid #c62828;
+}
+
+.employee-info {
+  line-height: 1.8;
+}
+
+.label {
+  font-weight: bold;
+}
+
+.small {
+  font-size: 13px;
+  color: #666;
+}
+
+</style>
+
 </head>
 
+
 <body>
-<div class="app">
 
-  <div class="header">
-    <h1>IRONCON EVENT</h1>
-    <p>QR Check-In Scanner</p>
+<div class="container">
+
+  <div class="card">
+
+    <h1>IRONCON</h1>
+
+    <div
+      id="eventInfo"
+      class="event-info"
+    >
+      Connecting to event API...
+    </div>
+
   </div>
 
-  <div id="eventInfo" class="event">
-    Connecting to event API...
+
+  <div
+    id="status"
+    class="status"
+  >
+    Loading active event...
   </div>
 
-  <div id="reader"></div>
 
-  <div id="scannerStatus" class="scanner-status">
-    Camera scanner is ready.
+  <div class="card">
+
+    <div id="reader"></div>
+
+    <button
+      id="startButton"
+      class="start"
+      onclick="startScanner()"
+    >
+      START CAMERA
+    </button>
+
+    <button
+      id="stopButton"
+      class="stop"
+      onclick="stopScanner()"
+      style="display:none;"
+    >
+      STOP CAMERA
+    </button>
+
   </div>
 
-  <button id="startButton" class="button start" onclick="startScanner()">
-    📷 START CAMERA
-  </button>
 
-  <button id="stopButton" class="button stop hidden" onclick="stopScanner()">
-    ⏹ STOP CAMERA
-  </button>
+  <div class="card">
 
-  <div id="result"></div>
+    <h2>Manual Security Code</h2>
 
-  <div class="manual">
-    <strong>Manual Security Code</strong>
-    <input id="manualCode" type="text" placeholder="Enter security code" autocomplete="off">
-    <button onclick="sendCode()">CHECK CODE</button>
+    <input
+      type="text"
+      id="manualCode"
+      placeholder="Enter Security Code"
+    >
+
+    <button
+      class="manual"
+      onclick="verifyManualCode()"
+    >
+      VERIFY CODE
+    </button>
+
   </div>
+
+
+  <div
+    id="result"
+    class="card result"
+  ></div>
 
 </div>
 
+
 <script>
-/*
- * ============================================================
- * GITHUB PAGES CONFIGURATION
- * ============================================================
+
+/************************************************************
+ * APP 2 — EVENT CHECK-IN QR SCANNER
+ ************************************************************/
+
+
+/************************************************************
+ * APP 3 API URL
  *
- * This is the ONLY URL you need to change when connecting this
- * GitHub Pages scanner to a different Apps Script deployment.
- *
- * Use the deployed Apps Script Web App /exec URL.
- */
+ * IMPORTANT:
+ * Replace this only if you create a new App 3 deployment.
+ ************************************************************/
+
 const API_URL =
-  "https://script.google.com/macros/s/AKfycbzrYG0lR20QL19HhtVKD6jbY5xyK29p8wMg68w-U1inA_jPbSXdpKliPTJymJMMfaZb/exec";
+"https://script.google.com/macros/s/AKfycbyQuz0hchyOMX3bpAc08PSBvAzO-88SrFCZR8t7Kz7sdegaSxANZlQihKyud7zEx9nt/exec";
 
-/*
- * The scanner does NOT contain event details.
- * Event information comes from the Apps Script API.
- */
 
-let scanner = null;
-let scannerRunning = false;
 let currentEvent = null;
-let lastScan = "";
-let lastScanTime = 0;
+
+let html5QrCode = null;
+
+let scannerRunning = false;
+
+let processingScan = false;
 
 
-/*
- * ============================================================
- * INITIALIZE
- * ============================================================
- */
+/************************************************************
+ * PAGE LOAD
+ ************************************************************/
 
-document.addEventListener("DOMContentLoaded", function () {
-  loadActiveEvent();
-});
+document.addEventListener(
+  "DOMContentLoaded",
+  function() {
+
+    loadActiveEvent();
+
+  }
+);
 
 
-/*
- * ============================================================
- * API REQUEST HELPER
- * ============================================================
- */
+/************************************************************
+ * API REQUEST
+ ************************************************************/
 
-async function apiRequest(action, data = {}) {
+async function apiRequest(
+  action,
+  params = {}
+) {
 
-  const params = new URLSearchParams();
+  const query =
+    new URLSearchParams();
 
-  params.set("action", action);
+  query.append(
+    "action",
+    action
+  );
 
-  Object.keys(data).forEach(function (key) {
-    params.set(key, data[key]);
-  });
+  Object.keys(params).forEach(
+    function(key) {
+
+      query.append(
+        key,
+        params[key]
+      );
+
+    }
+  );
 
   const response =
-    await fetch(API_URL + "?" + params.toString(), {
-      method: "GET",
-      cache: "no-store"
-    });
+    await fetch(
+      API_URL +
+      "?" +
+      query.toString(),
+      {
+        method: "GET",
+        cache: "no-store"
+      }
+    );
 
   if (!response.ok) {
-    throw new Error("API request failed: HTTP " + response.status);
+
+    throw new Error(
+      "API request failed: " +
+      response.status
+    );
+
   }
 
   return await response.json();
+
 }
 
 
-/*
- * ============================================================
- * GET ACTIVE EVENT
- * ============================================================
- */
+/************************************************************
+ * LOAD ACTIVE EVENT
+ ************************************************************/
 
 async function loadActiveEvent() {
+
+  setStatus(
+    "Loading active event...",
+    "normal"
+  );
 
   try {
 
     const result =
-      await apiRequest("getActiveEvent");
+      await apiRequest(
+        "getActiveEvent"
+      );
 
-    if (
-      !result ||
-      result.success === false
-    ) {
+    if (!result.success) {
 
       throw new Error(
-        result && result.message
-          ? result.message
-          : "Unable to get active event."
+        result.message ||
+        "No active event found."
       );
+
     }
 
     currentEvent =
-      result.event || result;
+      result.event;
 
-    displayEvent(currentEvent);
+    displayEvent(
+      currentEvent
+    );
 
-  } catch (error) {
+    setStatus(
+      "Ready for event check-in.",
+      "normal"
+    );
+
+  }
+
+  catch (error) {
 
     console.error(error);
 
-    document.getElementById("eventInfo").textContent =
-      "Unable to connect to event API.";
+    document.getElementById(
+      "eventInfo"
+    ).innerHTML =
+
+      "<strong>Unable to load active event</strong>" +
+      "<br>" +
+      escapeHtml(
+        error.message
+      );
 
     setStatus(
-      "Check the Apps Script API URL."
+      "API connection failed.",
+      "error"
     );
+
   }
+
 }
 
 
-/*
- * ============================================================
- * DISPLAY ACTIVE EVENT
- * ============================================================
- */
+/************************************************************
+ * DISPLAY EVENT
+ ************************************************************/
 
 function displayEvent(event) {
 
-  if (!event) {
-    return;
-  }
+  const eventInfo =
+    document.getElementById(
+      "eventInfo"
+    );
 
-  document.getElementById("eventInfo").innerHTML =
-    "<strong>" +
-    escapeHtml(event.name || "Active Event") +
-    "</strong>" +
-    "<br>" +
-    escapeHtml(event.date || "") +
-    " • " +
-    escapeHtml(event.time || "") +
-    "<br>" +
-    escapeHtml(event.venue || "");
+  eventInfo.innerHTML =
+
+    '<div class="event-name">' +
+      escapeHtml(
+        event.eventName ||
+        "Event"
+      ) +
+    '</div>' +
+
+    '<div>' +
+      escapeHtml(
+        event.eventDate ||
+        ""
+      ) +
+    '</div>' +
+
+    '<div>' +
+      escapeHtml(
+        event.eventTime ||
+        ""
+      ) +
+    '</div>' +
+
+    '<div>' +
+      escapeHtml(
+        event.eventVenue ||
+        ""
+      ) +
+    '</div>';
 
 }
 
 
-/*
- * ============================================================
- * START QR SCANNER
- * ============================================================
- */
+/************************************************************
+ * START SCANNER
+ ************************************************************/
 
 async function startScanner() {
 
@@ -238,53 +433,52 @@ async function startScanner() {
     return;
   }
 
-  setStatus("Starting camera...");
+  if (!currentEvent) {
+
+    showResult(
+      false,
+      "No active event is available."
+    );
+
+    return;
+
+  }
+
+  html5QrCode =
+    new Html5Qrcode(
+      "reader"
+    );
 
   try {
 
-    scanner =
-      new Html5Qrcode("reader");
-
-    const config = {
-
-      fps: 10,
-
-      qrbox: function (
-        viewfinderWidth,
-        viewfinderHeight
-      ) {
-
-        const minEdge =
-          Math.min(
-            viewfinderWidth,
-            viewfinderHeight
-          );
-
-        const boxSize =
-          Math.min(
-            Math.floor(minEdge * 0.70),
-            300
-          );
-
-        return {
-          width: boxSize,
-          height: boxSize
-        };
-      },
-
-      aspectRatio: 1.0,
-
-      rememberLastUsedCamera: true
-    };
-
-
-    await scanner.start(
+    await html5QrCode.start(
 
       {
         facingMode: "environment"
       },
 
-      config,
+      {
+        fps: 10,
+
+        qrbox: function(
+          width,
+          height
+        ) {
+
+          const size =
+            Math.min(
+              width,
+              height
+            ) * 0.70;
+
+          return {
+            width: size,
+            height: size
+          };
+
+        }
+
+      },
 
       onScanSuccess,
 
@@ -292,211 +486,199 @@ async function startScanner() {
 
     );
 
-
     scannerRunning = true;
 
-    document
-      .getElementById("startButton")
-      .classList.add("hidden");
+    document.getElementById(
+      "startButton"
+    ).style.display =
+      "none";
 
-    document
-      .getElementById("stopButton")
-      .classList.remove("hidden");
-
-    setStatus(
-      "Point the camera at the attendee QR code."
-    );
-
-
-  } catch (error) {
-
-    console.error(
-      "Camera error:",
-      error
-    );
-
-    scannerRunning = false;
+    document.getElementById(
+      "stopButton"
+    ).style.display =
+      "block";
 
     setStatus(
-      "Unable to access camera."
+      "Camera active. Scan employee QR.",
+      "normal"
     );
+
+  }
+
+  catch (error) {
+
+    console.error(error);
 
     showResult(
-      "error",
-      `
-        <div class="icon">⚠️</div>
-        <div class="message">
-          Camera access failed.
-          <br><br>
-          Make sure you opened this page using HTTPS
-          and allowed camera permission in Chrome.
-        </div>
-      `
+      false,
+      "Unable to access camera. Please allow camera permission in your browser."
     );
+
   }
+
 }
 
 
-/*
- * ============================================================
- * QR SUCCESS
- * ============================================================
- */
-
-async function onScanSuccess(decodedText) {
-
-  console.log(
-    "QR CODE:",
-    decodedText
-  );
-
-  await stopScanner();
-
-  /*
-   * The entire QR payload is sent to the API.
-   *
-   * This supports the new format:
-   *
-   * EVENT_ID=IR48-2026
-   * SECURITY_CODE=IR48-ABC123
-   *
-   * It also supports a plain security code for backward
-   * compatibility.
-   */
-
-  verifyCode(decodedText);
-}
-
-
-/*
- * Normal QR frame failures are ignored.
- */
-
-function onScanFailure() {
-  // Intentionally ignored.
-}
-
-
-/*
- * ============================================================
+/************************************************************
  * STOP SCANNER
- * ============================================================
- */
+ ************************************************************/
 
 async function stopScanner() {
 
-  if (!scanner || !scannerRunning) {
+  if (
+    !html5QrCode ||
+    !scannerRunning
+  ) {
     return;
   }
 
   try {
-    await scanner.stop();
-  } catch (error) {
-    console.warn("Scanner stop:", error);
+
+    await html5QrCode.stop();
+
   }
 
-  try {
-    await scanner.clear();
-  } catch (error) {
-    console.warn("Scanner clear:", error);
+  catch (error) {
+
+    console.error(error);
+
   }
 
   scannerRunning = false;
 
-  document
-    .getElementById("startButton")
-    .classList.remove("hidden");
+  document.getElementById(
+    "startButton"
+  ).style.display =
+    "block";
 
-  document
-    .getElementById("stopButton")
-    .classList.add("hidden");
+  document.getElementById(
+    "stopButton"
+  ).style.display =
+    "none";
 
-  setStatus("Scanner stopped.");
+  setStatus(
+    "Camera stopped.",
+    "normal"
+  );
+
 }
 
 
-/*
- * ============================================================
- * VERIFY CODE THROUGH API
- * ============================================================
- */
+/************************************************************
+ * QR SCAN SUCCESS
+ ************************************************************/
 
-async function verifyCode(code) {
+async function onScanSuccess(
+  decodedText
+) {
 
-  code =
-    String(code || "").trim();
+  if (processingScan) {
+    return;
+  }
+
+  processingScan = true;
+
+  try {
+
+    await stopScanner();
+
+    await verifyCode(
+      decodedText
+    );
+
+  }
+
+  finally {
+
+    processingScan = false;
+
+  }
+
+}
+
+
+/************************************************************
+ * QR SCAN FAILURE
+ ************************************************************/
+
+function onScanFailure(error) {
+
+  // Normal scanning failures are ignored.
+
+}
+
+
+/************************************************************
+ * VERIFY QR CODE
+ ************************************************************/
+
+async function verifyCode(
+  code
+) {
 
   if (!code) {
 
     showResult(
-      "error",
-      `
-        <div class="icon">❌</div>
-        <div class="message">
-          Please scan or enter a security code.
-        </div>
-      `
+      false,
+      "No QR data was received."
     );
 
     return;
-  }
-
-
-  /*
-   * Prevent duplicate scan submissions caused by camera
-   * decoding the same QR multiple times.
-   */
-
-  const now =
-    Date.now();
-
-  if (
-    code === lastScan &&
-    now - lastScanTime < 3000
-  ) {
-
-    return;
 
   }
 
-  lastScan = code;
-  lastScanTime = now;
-
-
-  showLoading();
-
+  setStatus(
+    "Verifying employee...",
+    "normal"
+  );
 
   try {
+
+    /*
+     * IMPORTANT:
+     * App 3 expects parameter:
+     *
+     * data=
+     *
+     * NOT:
+     *
+     * code=
+     */
 
     const result =
       await apiRequest(
         "verifySecurityCode",
         {
-          code: code
+          data: code
         }
       );
 
+    handleVerificationResult(
+      result
+    );
 
-    handleResult(result);
+  }
 
-
-  } catch (error) {
+  catch (error) {
 
     console.error(error);
 
-    handleError(error);
+    showResult(
+      false,
+      "Unable to contact event API: " +
+      error.message
+    );
 
   }
+
 }
 
 
-/*
- * ============================================================
+/************************************************************
  * MANUAL CODE
- * ============================================================
- */
+ ************************************************************/
 
-function sendCode() {
+async function verifyManualCode() {
 
   const input =
     document.getElementById(
@@ -506,230 +688,87 @@ function sendCode() {
   const code =
     input.value.trim();
 
-  verifyCode(code);
-}
-
-
-/*
- * ============================================================
- * HANDLE API RESULT
- * ============================================================
- */
-
-function handleResult(result) {
-
-  if (!result) {
+  if (!code) {
 
     showResult(
-      "error",
-      `
-        <div class="icon">❌</div>
-        <div class="message">
-          No response from server.
-        </div>
-      `
+      false,
+      "Please enter a Security Code."
     );
 
     return;
+
   }
 
+  await verifyCode(
+    code
+  );
 
-  if (result.success) {
+}
+
+
+/************************************************************
+ * HANDLE VERIFICATION RESULT
+ ************************************************************/
+
+function handleVerificationResult(
+  result
+) {
+
+  if (!result.success) {
 
     showResult(
-      "success",
-      `
-        <div class="icon">✅</div>
+      false,
+      result.message ||
+      "Invalid Security Code."
+    );
 
-        <div class="name">
-          ${escapeHtml(result.name)}
-        </div>
-
-        <div class="message">
-          CHECK-IN SUCCESSFUL
-        </div>
-
-        <div class="event-result">
-          ${escapeHtml(result.eventName || "")}
-        </div>
-
-        <br>
-
-        ${escapeHtml(result.checkInTime || "")}
-
-        <button
-          class="scan-again"
-          onclick="scanAgain()"
-        >
-          📷 SCAN NEXT ATTENDEE
-        </button>
-      `
+    setStatus(
+      "Check-in failed.",
+      "error"
     );
 
     return;
+
   }
 
+  if (
+    result.alreadyCheckedIn
+  ) {
 
-  if (result.alreadyCheckedIn) {
+    showEmployeeResult(
+      result.attendee,
+      true
+    );
 
-    showResult(
-      "warning",
-      `
-        <div class="icon">⚠️</div>
-
-        <div class="name">
-          ${escapeHtml(result.name)}
-        </div>
-
-        <div class="message">
-          ALREADY CHECKED IN
-        </div>
-
-        <div class="event-result">
-          ${escapeHtml(result.eventName || "")}
-        </div>
-
-        <br>
-
-        ${escapeHtml(result.checkInTime || "")}
-
-        <button
-          class="scan-again"
-          onclick="scanAgain()"
-        >
-          📷 SCAN NEXT ATTENDEE
-        </button>
-      `
+    setStatus(
+      "Employee already checked in.",
+      "warning"
     );
 
     return;
+
   }
 
-
-  showResult(
-    "error",
-    `
-      <div class="icon">❌</div>
-
-      <div class="message">
-        ${escapeHtml(
-          result.message ||
-          "Invalid security code."
-        )}
-      </div>
-
-      <button
-        class="scan-again"
-        onclick="scanAgain()"
-      >
-        📷 TRY AGAIN
-      </button>
-    `
+  showEmployeeResult(
+    result.attendee,
+    false
   );
-}
 
-
-/*
- * ============================================================
- * SERVER ERROR
- * ============================================================
- */
-
-function handleError(error) {
-
-  console.error(error);
-
-  showResult(
-    "error",
-    `
-      <div class="icon">⚠️</div>
-
-      <div class="message">
-        Unable to communicate with the event API.
-        <br><br>
-        Check the API URL and deployment settings.
-      </div>
-
-      <button
-        class="scan-again"
-        onclick="loadActiveEvent()"
-      >
-        🔄 RETRY
-      </button>
-    `
+  setStatus(
+    "Check-in successful.",
+    "success"
   );
+
 }
 
 
-/*
- * ============================================================
- * SCAN AGAIN
- * ============================================================
- */
+/************************************************************
+ * SHOW EMPLOYEE RESULT
+ ************************************************************/
 
-function scanAgain() {
-
-  document
-    .getElementById("result")
-    .style.display = "none";
-
-  document
-    .getElementById("manualCode")
-    .value = "";
-
-  lastScan = "";
-  lastScanTime = 0;
-
-  startScanner();
-}
-
-
-/*
- * ============================================================
- * LOADING
- * ============================================================
- */
-
-function showLoading() {
-
-  showResult(
-    "info",
-    `
-      <div class="icon">⏳</div>
-
-      <div class="message">
-        Verifying attendee...
-      </div>
-    `
-  );
-}
-
-
-/*
- * ============================================================
- * STATUS
- * ============================================================
- */
-
-function setStatus(message) {
-
-  document
-    .getElementById(
-      "scannerStatus"
-    )
-    .textContent = message;
-}
-
-
-/*
- * ============================================================
- * RESULT DISPLAY
- * ============================================================
- */
-
-function showResult(
-  type,
-  html
+function showEmployeeResult(
+  attendee,
+  alreadyCheckedIn
 ) {
 
   const result =
@@ -737,58 +776,240 @@ function showResult(
       "result"
     );
 
+  result.style.display =
+    "block";
+
   result.className =
-    type;
+    "card result " +
+    (
+      alreadyCheckedIn
+        ? "warning"
+        : "success"
+    );
+
+  const employeeName =
+    attendee.employeeName ||
+    attendee.fullName ||
+    "";
+
+  const employeeCode =
+    attendee.employeeCode ||
+    attendee.employeeNumber ||
+    "";
+
+  result.innerHTML =
+
+    "<h2>" +
+
+      (
+        alreadyCheckedIn
+          ? "ALREADY CHECKED IN"
+          : "CHECK-IN SUCCESSFUL"
+      ) +
+
+    "</h2>" +
+
+    '<div class="employee-info">' +
+
+      "<div>" +
+        '<span class="label">Employee Name:</span> ' +
+        escapeHtml(
+          employeeName
+        ) +
+      "</div>" +
+
+      "<div>" +
+        '<span class="label">Employee Code:</span> ' +
+        escapeHtml(
+          employeeCode
+        ) +
+      "</div>" +
+
+      "<div>" +
+        '<span class="label">Security Code:</span> ' +
+        escapeHtml(
+          attendee.securityCode ||
+          ""
+        ) +
+      "</div>" +
+
+      (
+        attendee.checkInTime
+          ?
+          "<div>" +
+            '<span class="label">Check-In Time:</span> ' +
+            escapeHtml(
+              formatDateTime(
+                attendee.checkInTime
+              )
+            ) +
+          "</div>"
+          :
+          ""
+      ) +
+
+    "</div>";
+
+}
+
+
+/************************************************************
+ * SHOW RESULT MESSAGE
+ ************************************************************/
+
+function showResult(
+  success,
+  message
+) {
+
+  const result =
+    document.getElementById(
+      "result"
+    );
 
   result.style.display =
     "block";
 
+  result.className =
+    "card result " +
+    (
+      success
+        ? "success"
+        : "error"
+    );
+
   result.innerHTML =
-    html;
+
+    "<h2>" +
+
+      (
+        success
+          ? "SUCCESS"
+          : "ERROR"
+      ) +
+
+    "</h2>" +
+
+    "<div>" +
+      escapeHtml(
+        message
+      ) +
+    "</div>";
+
 }
 
 
-/*
- * ============================================================
- * HTML ESCAPING
- * ============================================================
- */
+/************************************************************
+ * STATUS
+ ************************************************************/
 
-function escapeHtml(value) {
+function setStatus(
+  message,
+  type
+) {
+
+  const status =
+    document.getElementById(
+      "status"
+    );
+
+  status.textContent =
+    message;
+
+  if (type === "success") {
+
+    status.style.background =
+      "#dff5e5";
+
+  }
+  else if (type === "error") {
+
+    status.style.background =
+      "#fde2e2";
+
+  }
+  else if (type === "warning") {
+
+    status.style.background =
+      "#fff1cc";
+
+  }
+  else {
+
+    status.style.background =
+      "#eee";
+
+  }
+
+}
+
+
+/************************************************************
+ * FORMAT DATE
+ ************************************************************/
+
+function formatDateTime(
+  value
+) {
+
+  if (!value) {
+    return "";
+  }
+
+  const date =
+    new Date(value);
+
+  if (
+    isNaN(
+      date.getTime()
+    )
+  ) {
+
+    return String(value);
+
+  }
+
+  return date.toLocaleString();
+
+}
+
+
+/************************************************************
+ * HTML ESCAPE
+ ************************************************************/
+
+function escapeHtml(
+  value
+) {
 
   return String(
-    value === null ||
-    value === undefined
-      ? ""
-      : value
+    value || ""
   )
-
     .replace(
       /&/g,
       "&amp;"
     )
-
     .replace(
       /</g,
       "&lt;"
     )
-
     .replace(
       />/g,
       "&gt;"
     )
-
     .replace(
       /"/g,
       "&quot;"
     )
-
     .replace(
       /'/g,
       "&#039;"
     );
+
 }
+
 </script>
 
 </body>
+
 </html>
